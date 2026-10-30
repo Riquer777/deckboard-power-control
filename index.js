@@ -1,6 +1,6 @@
 const { execFile } = require('node:child_process');
 const { dialog } = require('electron');
-const { Extension, Platforms, Icons, log } = require('deckboard-kit');
+const { Extension, Platforms, log } = require('deckboard-kit');
 
 const ACTIONS = {
   shutdown: {
@@ -24,15 +24,15 @@ class PowerControlExtension extends Extension {
       {
         label: 'Desligar computador',
         value: 'shutdown',
-        icon: 'power',
-        fontIcon: Icons.ionicons,
+        input: 'power',
+        fontIcon: 'ion',
         color: '#c0392b'
       },
       {
         label: 'Reiniciar computador',
         value: 'restart',
-        icon: 'refresh',
-        fontIcon: Icons.ionicons,
+        input: 'refresh',
+        fontIcon: 'ion',
         color: '#d68910'
       }
     ];
@@ -60,7 +60,6 @@ class PowerControlExtension extends Extension {
       return;
     }
 
-    // Executa o comando fixo diretamente, sem shell e sem interpolação.
     execFile('/usr/bin/systemctl', [selected.command], { timeout: 10000 }, (error, _stdout, stderr) => {
       if (error) {
         const reason = String(stderr || error.message || 'Erro desconhecido').trim();
