@@ -1,6 +1,6 @@
-name: Power Control
-package: deckboard-power-control
-version: 2.0.0
+name: Power Control (Linux)
+package: riquer777-power-control-linux
+version: 2.1.0
 description: Shutdown and restart a Linux computer through Deckboard
 author: Riquer777
 license: MIT
