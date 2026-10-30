@@ -1,19 +1,6 @@
 const { execFile } = require('node:child_process');
 const { dialog } = require('electron');
-const { Extension, Platforms, log } = require('deckboard-kit');
-
-const ACTIONS = {
-  shutdown: {
-    command: 'poweroff',
-    title: 'Desligar computador',
-    message: 'Deseja realmente desligar o computador?'
-  },
-  restart: {
-    command: 'reboot',
-    title: 'Reiniciar computador',
-    message: 'Deseja realmente reiniciar o computador?'
-  }
-};
+const { Extension, InputTypes, Platforms, log } = require('deckboard-kit');
 
 class PowerControlExtension extends Extension {
   constructor() {
@@ -22,42 +9,69 @@ class PowerControlExtension extends Extension {
     this.platforms = [Platforms.linux];
     this.inputs = [
       {
-        label: 'Desligar computador',
-        value: 'shutdown',
-        input: 'power',
-        fontIcon: 'ion',
-        color: '#c0392b'
-      },
-      {
-        label: 'Reiniciar computador',
-        value: 'restart',
-        input: 'refresh',
-        fontIcon: 'ion',
-        color: '#d68910'
+        label: 'Power Control',
+        value: 'power-control',
+        icon: 'power-off',
+        fontIcon: 'fas',
+        color: '#34495e',
+        input: [
+          {
+            label: 'Ação',
+            ref: 'powerAction',
+            type: InputTypes.select,
+            items: [
+              { label: 'Desligar', value: 'shutdown' },
+              { label: 'Reiniciar', value: 'restart' }
+            ]
+          },
+          {
+            label: 'Pedir confirmação',
+            ref: 'confirmation',
+            type: InputTypes.checkbox,
+            default: true
+          }
+        ]
       }
     ];
   }
 
-  async execute(action) {
-    const selected = ACTIONS[action];
+  async execute(action, { powerAction, confirmation = true } = {}) {
+    if (action !== 'power-control') return;
+
+    const operations = {
+      shutdown: {
+        command: 'poweroff',
+        title: 'Desligar computador',
+        message: 'Deseja realmente desligar o computador?'
+      },
+      restart: {
+        command: 'reboot',
+        title: 'Reiniciar computador',
+        message: 'Deseja realmente reiniciar o computador?'
+      }
+    };
+
+    const selected = operations[powerAction];
     if (!selected) {
-      log.warn('Ação desconhecida:', action);
+      log.warn('Ação de energia inválida:', powerAction);
       return;
     }
 
-    const confirmation = await dialog.showMessageBox({
-      type: 'warning',
-      buttons: ['Cancelar', 'Confirmar'],
-      defaultId: 0,
-      cancelId: 0,
-      title: selected.title,
-      message: selected.message,
-      detail: 'Salve seu trabalho antes de continuar.'
-    });
+    if (confirmation) {
+      const result = await dialog.showMessageBox({
+        type: 'warning',
+        buttons: ['Cancelar', 'Confirmar'],
+        defaultId: 0,
+        cancelId: 0,
+        title: selected.title,
+        message: selected.message,
+        detail: 'Salve seu trabalho antes de continuar.'
+      });
 
-    if (confirmation.response !== 1) {
-      log.info('Operação cancelada:', action);
-      return;
+      if (result.response !== 1) {
+        log.info('Operação cancelada:', powerAction);
+        return;
+      }
     }
 
     execFile('/usr/bin/systemctl', [selected.command], { timeout: 10000 }, (error, _stdout, stderr) => {
