@@ -18,21 +18,21 @@ const ACTIONS = {
 class PowerControlExtension extends Extension {
   constructor() {
     super();
-    this.name = 'Power Control';
+    this.name = 'Power Control (Linux)';
     this.platforms = [Platforms.linux];
     this.inputs = [
       {
         label: 'Desligar computador',
         value: 'shutdown',
+        icon: 'power',
         fontIcon: Icons.ionicons,
-        input: 'power',
         color: '#c0392b'
       },
       {
         label: 'Reiniciar computador',
         value: 'restart',
+        icon: 'refresh',
         fontIcon: Icons.ionicons,
-        input: 'refresh',
         color: '#d68910'
       }
     ];
