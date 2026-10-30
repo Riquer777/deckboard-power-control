@@ -1,10 +1,12 @@
 {
-  "name": "deckboard-power-control",
-  "version": "2.0.0",
-  "description": "Shutdown and restart a Linux computer through Deckboard",
+  "name": "riquer777-power-control-linux",
+  "version": "2.1.0",
+  "description": "Linux shutdown and restart controls for Deckboard",
   "main": "index.js",
   "scripts": {
-    "check": "node --check index.js"
+    "check": "node --check index.js",
+    "build": "deckboard-kit --build",
+    "install:deckboard": "deckboard-kit --install"
   },
   "author": "Riquer777",
   "contributors": ["Riva Farabi"],
