@@ -1,94 +1,83 @@
+const { execFile } = require('node:child_process');
 const { dialog } = require('electron');
-const { Extension, log, INPUT_METHOD, PLATFORMS } = require('deckboard-kit');
-const { shutdown } = require('wintools');
+const { Extension, Platforms, Icons, log } = require('deckboard-kit');
+
+const ACTIONS = {
+  shutdown: {
+    command: 'poweroff',
+    title: 'Desligar computador',
+    message: 'Deseja realmente desligar o computador?'
+  },
+  restart: {
+    command: 'reboot',
+    title: 'Reiniciar computador',
+    message: 'Deseja realmente reiniciar o computador?'
+  }
+};
 
 class PowerControlExtension extends Extension {
-	constructor() {
-		super();
-		this.name = 'Power Option';
-		this.platforms = [PLATFORMS.WINDOWS, PLATFORMS.MAC];
-		this.inputs = [
-			{
-				label: 'Power Option',
-				value: 'power-option',
-				icon: 'power-off',
-				color: '#34495e',
-				input: [
-					{
-						label: 'Action',
-						ref: 'powerAction',
-						type: INPUT_METHOD.INPUT_SELECT,
-						items: [
-							{
-								label: 'Shutdown',
-								value: 'shutdown'
-							},
-							{
-								label: 'Restart',
-								value: 'restart'
-							}
-						]
-					},
-					{
-						label: 'With Confirmation',
-						ref: 'confirmation',
-						type: INPUT_METHOD.INPUT_CHECKBOX,
-						default: true
-					}
-				]
-			}
-		];
-	}
+  constructor() {
+    super();
+    this.name = 'Power Control';
+    this.platforms = [Platforms.linux];
+    this.inputs = [
+      {
+        label: 'Desligar computador',
+        value: 'shutdown',
+        fontIcon: Icons.ionicons,
+        input: 'power',
+        color: '#c0392b'
+      },
+      {
+        label: 'Reiniciar computador',
+        value: 'restart',
+        fontIcon: Icons.ionicons,
+        input: 'refresh',
+        color: '#d68910'
+      }
+    ];
+  }
 
-	execute(action, { powerAction, confirmation = true }) {
-		log.info(`${action} ${powerAction}`);
-		switch (action) {
-			case 'power-option': {
-				switch (powerAction) {
-					case 'shutdown':
-						if (confirmation)
-							dialog.showMessageBox(
-								null,
-								{
-									type: 'question',
-									buttons: ['Cancel', 'Yes'],
-									defaultId: 0,
-									title: 'Shutdown',
-									message:
-										'Do you want to shutdown the computer?'
-								},
-								response => {
-									if (response === 1) shutdown.poweroff();
-								}
-							);
-						else shutdown.poweroff();
-						break;
-					case 'restart':
-						if (confirmation)
-							dialog.showMessageBox(
-								null,
-								{
-									type: 'question',
-									buttons: ['Cancel', 'Yes'],
-									defaultId: 0,
-									title: 'Shutdown',
-									message:
-										'Do you want to restart the computer?'
-								},
-								response => {
-									if (response === 1) shutdown.restart();
-								}
-							);
-						else shutdown.restart();
-						break;
-					default:
-						break;
-				}
-			}
-			default:
-				break;
-		}
-	}
+  async execute(action) {
+    const selected = ACTIONS[action];
+    if (!selected) {
+      log.warn('Ação desconhecida:', action);
+      return;
+    }
+
+    const confirmation = await dialog.showMessageBox({
+      type: 'warning',
+      buttons: ['Cancelar', 'Confirmar'],
+      defaultId: 0,
+      cancelId: 0,
+      title: selected.title,
+      message: selected.message,
+      detail: 'Salve seu trabalho antes de continuar.'
+    });
+
+    if (confirmation.response !== 1) {
+      log.info('Operação cancelada:', action);
+      return;
+    }
+
+    // Executa o comando fixo diretamente, sem shell e sem interpolação.
+    execFile('/usr/bin/systemctl', [selected.command], { timeout: 10000 }, (error, _stdout, stderr) => {
+      if (error) {
+        const reason = String(stderr || error.message || 'Erro desconhecido').trim();
+        log.error('Falha na operação de energia:', reason);
+        dialog.showMessageBox({
+          type: 'error',
+          buttons: ['OK'],
+          title: 'Falha na operação de energia',
+          message: 'O Linux não aceitou a solicitação.',
+          detail: reason
+        }).catch(dialogError => log.error('Falha ao exibir mensagem:', dialogError));
+        return;
+      }
+
+      log.info('Solicitação enviada ao systemd:', selected.command);
+    });
+  }
 }
 
 module.exports = new PowerControlExtension();

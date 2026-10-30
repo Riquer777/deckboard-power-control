@@ -1,7 +1,7 @@
 name: Power Control
-package: power-control
-version: 1.0.3
-description: Shutdown and restart the PC through Deckboard
-author: Riva Farabi
+package: deckboard-power-control
+version: 2.0.0
+description: Shutdown and restart a Linux computer through Deckboard
+author: Riquer777
 license: MIT
-repository: 'https://github.com/rivafarabi/deckboard-power-control'
+repository: "https://github.com/Riquer777/deckboard-power-control"
