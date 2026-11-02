@@ -16,16 +16,16 @@ class PowerControlExtension extends Extension {
         color: '#34495e',
         input: [
           {
-            label: 'Ação',
+            label: 'Action',
             ref: 'powerAction',
             type: InputTypes.select,
             items: [
-              { label: 'Desligar', value: 'shutdown' },
-              { label: 'Reiniciar', value: 'restart' }
+              { label: 'Shut Down', value: 'shutdown' },
+              { label: 'Restart', value: 'restart' }
             ]
           },
           {
-            label: 'Pedir confirmação',
+            label: 'Require Confirmation',
             ref: 'confirmation',
             type: InputTypes.checkbox,
             default: true
@@ -41,54 +41,54 @@ class PowerControlExtension extends Extension {
     const operations = {
       shutdown: {
         command: 'poweroff',
-        title: 'Desligar computador',
-        message: 'Deseja realmente desligar o computador?'
+        title: 'Shut Down Computer',
+        message: 'Are you sure you want to shut down your computer?'
       },
       restart: {
         command: 'reboot',
-        title: 'Reiniciar computador',
-        message: 'Deseja realmente reiniciar o computador?'
+        title: 'Restart Computer',
+        message: 'Are you sure you want to restart your computer?'
       }
     };
 
     const selected = operations[powerAction];
     if (!selected) {
-      log.warn('Ação de energia inválida:', powerAction);
+      log.warn('Invalid power action:', powerAction);
       return;
     }
 
     if (confirmation) {
       const result = await dialog.showMessageBox({
         type: 'warning',
-        buttons: ['Cancelar', 'Confirmar'],
+        buttons: ['Cancel', 'Confirm'],
         defaultId: 0,
         cancelId: 0,
         title: selected.title,
         message: selected.message,
-        detail: 'Salve seu trabalho antes de continuar.'
+        detail: 'Please save your work before proceeding.'
       });
 
       if (result.response !== 1) {
-        log.info('Operação cancelada:', powerAction);
+        log.info('Operation cancelled:', powerAction);
         return;
       }
     }
 
     execFile('/usr/bin/systemctl', [selected.command], { timeout: 10000 }, (error, _stdout, stderr) => {
       if (error) {
-        const reason = String(stderr || error.message || 'Erro desconhecido').trim();
-        log.error('Falha na operação de energia:', reason);
+        const reason = String(stderr || error.message || 'Unknown error').trim();
+        log.error('Power operation failed:', reason);
         dialog.showMessageBox({
           type: 'error',
           buttons: ['OK'],
-          title: 'Falha na operação de energia',
-          message: 'O Linux não aceitou a solicitação.',
+          title: 'Power Operation Failed',
+          message: 'Linux could not process the request.',
           detail: reason
-        }).catch(dialogError => log.error('Falha ao exibir mensagem:', dialogError));
+        }).catch(dialogError => log.error('Failed to display error message:', dialogError));
         return;
       }
 
-      log.info('Solicitação enviada ao systemd:', selected.command);
+      log.info('Request sent to systemd:', selected.command);
     });
   }
 }
