@@ -1,42 +1,42 @@
 # Deckboard Power Control — Linux
 
-Extensão Linux para desligar ou reiniciar o computador diretamente pelo Deckboard.
+A Linux extension for shutting down or restarting your computer directly from Deckboard.
 
-Esta é uma adaptação Linux do projeto original de Riva Farabi. O código original e seus créditos são preservados na licença MIT.
+This is a Linux adaptation of the original project by Riva Farabi. The original code and its credits are preserved under the MIT License.
 
-## Identificador exclusivo
+## Unique Identifier
 
-- Nome no Deckboard: `Power Control (Linux)`
-- Pacote: `riquer777-power-control-linux`
-- Arquivo gerado: `riquer777-power-control-linux.asar`
+- Deckboard name: `Power Control (Linux)`
+- Package: `riquer777-power-control-linux`
+- Generated file: `riquer777-power-control-linux.asar`
 
-O nome do arquivo ASAR é derivado de `package` em `extension.yml`. O identificador do pacote, o nome em `package.json` e o nome do arquivo devem permanecer alinhados.
+The ASAR filename is derived from the `package` field in `extension.yml`. The package identifier, the name in `package.json`, and the generated filename must remain consistent.
 
-## Recursos
+## Features
 
-- Ação independente para desligar.
-- Ação independente para reiniciar.
-- Confirmação antes de executar qualquer operação.
-- Integração com systemd por meio de `systemctl`.
-- Tratamento e registro de erros.
-- Disponível somente em Linux.
+- Dedicated shutdown action.
+- Dedicated restart action.
+- Confirmation prompt before executing either operation.
+- systemd integration through `systemctl`.
+- Error handling and logging.
+- Linux-only support.
 
-## Requisitos
+## Requirements
 
-- Linux com systemd (Linux Mint, Ubuntu, Debian e derivados).
-- Deckboard com suporte a extensões.
-- Node.js 18 ou superior e npm.
-- `deckboard-kit-cli` instalado e disponível no PATH.
+- Linux with systemd (Linux Mint, Ubuntu, Debian, and derivatives).
+- Deckboard with extension support.
+- Node.js 18 or later and npm.
+- `deckboard-kit-cli` installed and available in PATH.
 
-Instale o CLI, se necessário:
+Install the CLI if necessary:
 
 ```bash
 npm install --global --prefix "$HOME/.local" deckboard-kit-cli
 ```
 
-## Instalação e build
+## Installation and Build
 
-Clone o projeto em uma pasta de desenvolvimento (não dentro da pasta de extensões):
+Clone the project into a development directory (not inside the extensions directory):
 
 ```bash
 git clone https://github.com/Riquer777/deckboard-power-control.git
@@ -45,67 +45,67 @@ npm install
 npm run check
 ```
 
-Para gerar o pacote:
+To build the package:
 
 ```bash
 rm -rf /tmp/.temp
 npm run build
 ```
 
-O arquivo será criado em:
+The generated file will be located at:
 
 ```text
 dist/riquer777-power-control-linux.asar
 ```
 
-Para instalar automaticamente no diretório padrão do Deckboard (`~/deckboard/extensions`):
+To automatically install it into Deckboard's default extensions directory (`~/deckboard/extensions`):
 
 ```bash
 npm run install:deckboard
 ```
 
-Ou copie manualmente:
+Alternatively, copy it manually:
 
 ```bash
 mkdir -p ~/deckboard/extensions
 cp dist/riquer777-power-control-linux.asar ~/deckboard/extensions/
 ```
 
-Feche completamente e abra novamente o Deckboard. Remova versões antigas desta extensão, especialmente `deckboard-power-control.asar`, para evitar duplicatas.
+Fully close and restart Deckboard. Remove older versions of this extension, especially `deckboard-power-control.asar`, to avoid duplicate entries.
 
-Se o Deckboard estiver usando um diretório de extensões diferente, copie o arquivo ASAR para o diretório efetivamente utilizado pela instalação.
+If Deckboard uses a different extensions directory, copy the ASAR file into the directory actually used by your installation.
 
-## Funcionamento
+## How It Works
 
-Após confirmar a ação, a extensão executa um dos comandos:
+After the user confirms the action, the extension executes one of the following commands:
 
-| Ação | Comando |
+| Action | Command |
 | --- | --- |
-| Desligar | `/usr/bin/systemctl poweroff` |
-| Reiniciar | `/usr/bin/systemctl reboot` |
+| Shutdown | `/usr/bin/systemctl poweroff` |
+| Restart | `/usr/bin/systemctl reboot` |
 
-Os comandos são executados diretamente, sem shell e sem interpolação. Em sessões gráficas locais, o systemd/logind normalmente autoriza a operação. Se a política do sistema negar a solicitação, a extensão registra o erro e tenta exibi-lo.
+Commands are executed directly, without a shell or string interpolation. In local graphical sessions, systemd/logind normally authorizes these operations. If system policy denies the request, the extension logs the error and attempts to display it.
 
-## Desenvolvimento
+## Development
 
-Verifique a sintaxe do JavaScript com:
+Check the JavaScript syntax using:
 
 ```bash
 npm run check
 ```
 
-Gere o pacote ASAR com:
+Build the ASAR package using:
 
 ```bash
 npm run build
 ```
 
-## Créditos e licença
+## Credits and License
 
-Adaptação Linux mantida por Riquer777.
+Linux adaptation maintained by Riquer777.
 
-Projeto original: https://github.com/rivafarabi/deckboard-power-control
+Original project: https://github.com/rivafarabi/deckboard-power-control
 
-Copyright original: Riva Farabi, 2019.
+Original copyright: Riva Farabi, 2019.
 
-Licença MIT. Consulte o arquivo [LICENSE](LICENSE).
+MIT License. See the [LICENSE](LICENSE) file.
